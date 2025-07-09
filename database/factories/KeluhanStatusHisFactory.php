@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use App\Models\KeluhanPelanggan;
 
 
 class KeluhanStatusHisFactory extends Factory
@@ -16,7 +17,7 @@ class KeluhanStatusHisFactory extends Factory
     public function definition()
     {
         return [
-            'keluhan_id' => KeluhanPelanggan::factory(),
+            'keluhan_id' => KeluhanPelanggan::inRandomOrder()->first(),
             'status_keluhan' => fake()->randomElement(['0', '1' ,'2']),
             'updated_at' => fake()->dateTimeBetween('-1 year', 'now')
         ];

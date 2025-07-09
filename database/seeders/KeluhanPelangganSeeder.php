@@ -14,7 +14,7 @@ class KeluhanPelangganSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\KeluhanPelanggans::factory(50)->create();
+        \App\Models\KeluhanPelanggan::factory(50)->create();
     }
 }
 
