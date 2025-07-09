@@ -6,7 +6,7 @@
 	                <div class="card-header">Keluhan Pelanggan</div>
 
 	                <div class="card-body">
-	                    asu
+	                    
 	                </div>
 	            </div>
 	        </div>
