@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('email');
             $table->string('nomor_hp');
-            $table->string('status_keluhan');
+            $table->string('status_keluhan')->default('0');
             $table->string('keluhan');
             $table->timestamps();
         });

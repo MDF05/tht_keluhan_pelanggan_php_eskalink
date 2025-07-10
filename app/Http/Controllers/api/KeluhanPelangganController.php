@@ -20,6 +20,25 @@ class KeluhanPelangganController extends Controller
     }
 
     /**
+     * Search keluhan by nama
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchByNama(Request $request)
+    {
+        $nama = $request->query('nama');
+        
+        if (!$nama) {
+            return response()->json(['message' => 'Parameter nama diperlukan'], 400);
+        }
+
+        $keluhan = KeluhanPelanggan::where('nama', 'LIKE', "%{$nama}%")->get();
+        
+        return response()->json($keluhan);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -27,15 +46,54 @@ class KeluhanPelangganController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string',
-            'email' => 'required|email',
-            'nomor_hp' => 'required|string',
-            'keluhan' => 'required|string',
-        ]);
+        try {
+            // Debug: Log semua data yang diterima
+            \Log::info('Received data:', $request->all());
+            
+            $request->validate([
+                'nama' => 'required|string',
+                'email' => 'required|email',
+                'nomor_hp' => 'required|string',
+                'keluhan' => 'required|string',
+                'status_keluhan' => 'nullable|string',
+            ]);
 
-        $keluhan = KeluhanPelanggan::create($request->all());
-        return response()->json($keluhan, 201);
+            $data = $request->all();
+            if (isset($data['name']) && !isset($data['nama'])) {
+                $data['nama'] = $data['name'];
+                unset($data['name']);
+            }
+
+            // Set default value untuk status_keluhan jika tidak ada
+            if (!isset($data['status_keluhan'])) {
+                $data['status_keluhan'] = '0';
+            }
+
+            // Debug: Log data yang akan disimpan
+            \Log::info('Data to save:', $data);
+
+            $keluhan = KeluhanPelanggan::create($data);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil ditambahkan',
+                'data' => $keluhan
+            ], 201);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data_received' => $request->all()
+            ], 500);
+        }
     }
 
     /**

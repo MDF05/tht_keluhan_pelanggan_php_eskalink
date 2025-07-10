@@ -21,3 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // API Routes untuk Keluhan Pelanggan
 Route::apiResource('keluhan-pelanggan', KeluhanPelangganController::class);
+
+// Route untuk search by nama
+Route::get('keluhan-pelanggan/search/nama', [KeluhanPelangganController::class, 'searchByNama']);
