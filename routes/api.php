@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\KeluhanPelangganController;
+use App\Http\Controllers\Api\KeluhanStatusHisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +25,9 @@ Route::apiResource('keluhan-pelanggan', KeluhanPelangganController::class);
 
 // Route untuk search by nama
 Route::get('keluhan-pelanggan/search/nama', [KeluhanPelangganController::class, 'searchByNama']);
+
+// API Routes untuk Keluhan Status History
+Route::apiResource('keluhan-status-history', KeluhanStatusHisController::class);
+
+// Route untuk search by status
+Route::get('keluhan-status-history/search/status', [KeluhanStatusHisController::class, 'searchByStatus']);

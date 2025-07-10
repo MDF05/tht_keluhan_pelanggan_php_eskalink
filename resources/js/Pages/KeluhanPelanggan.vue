@@ -66,15 +66,18 @@
                                             </td>
                                             <td>{{ keluhan.keluhan }}</td>
                                             <td>{{ formatDate(keluhan.created_at) }}</td>
-                                            <td>
+                                            <td class="d-flex">
                                                 <button @click="viewKeluhan(keluhan)" class="btn btn-info btn-sm me-1">
                                                     <i class="bi bi-eye"></i> Lihat
                                                 </button>
-                                                <button @click="editKeluhan(keluhan)" class="btn btn-warning btn-sm me-1">
+                                                <button @click="editKeluhan(keluhan)" class="btn btn-warning btn-sm me-1 ">
                                                     <i class="bi bi-pencil"></i> Edit
                                                 </button>
-                                                <button @click="deleteKeluhan(keluhan.id)" class="btn btn-danger btn-sm">
+                                                <button @click="deleteKeluhan(keluhan.id)" class="btn btn-danger btn-sm me-1 ">
                                                     <i class="bi bi-trash"></i> Hapus
+                                                </button>
+                                                <button @click="showHistory(keluhan)" class="btn btn-secondary btn-sm">
+                                                    <i class="bi bi-clock-history"></i> History
                                                 </button>
                                             </td>
                                         </tr>
@@ -135,6 +138,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal Timeline History -->
+        <div v-if="showHistoryModal" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Timeline Status Keluhan</h5>
+                        <button @click="closeHistoryModal" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="historyLoading" class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div v-if="keluhanHistory.length > 0">
+                                <ul class="timeline list-unstyled">
+                                    <li v-for="(item, idx) in keluhanHistory" :key="item.id" class="mb-3">
+                                        <div>
+                                            <span :class="getStatusClass(item.status_keluhan)">
+                                                {{ getStatusText(item.status_keluhan) }}
+                                            </span>
+                                            <small class="text-muted ms-2">{{ formatDate(item.updated_at) }}</small>
+                                        </div>
+                                        <div class="ms-3 mt-1">
+                                            <strong>Keluhan:</strong> {{ selectedKeluhan?.keluhan }}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div v-else class="text-center text-muted">Tidak ada history status</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -158,6 +198,10 @@ export default {
             status_keluhan: '0',
             keluhan: ''
         })
+        const showHistoryModal = ref(false)
+        const keluhanHistory = ref([])
+        const historyLoading = ref(false)
+        const selectedKeluhan = ref(null)
 
         // Fetch data from API
         const fetchKeluhan = async () => {
@@ -282,6 +326,28 @@ export default {
             })
         }
 
+        const showHistory = async (keluhan) => {
+            selectedKeluhan.value = keluhan
+            showHistoryModal.value = true
+            historyLoading.value = true
+            try {
+                const response = await axios.get(`/api/keluhan-status-history?keluhan_id=${keluhan.id}`)
+                // Filter jika API mengembalikan semua, atau gunakan langsung jika sudah terfilter
+                keluhanHistory.value = Array.isArray(response.data)
+                    ? response.data.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))
+                    : []
+            } catch (error) {
+                keluhanHistory.value = []
+            } finally {
+                historyLoading.value = false
+            }
+        }
+        const closeHistoryModal = () => {
+            showHistoryModal.value = false
+            keluhanHistory.value = []
+            selectedKeluhan.value = null
+        }
+
         // Load data on mount
         onMounted(() => {
             fetchKeluhan()
@@ -303,7 +369,13 @@ export default {
             closeModal,
             getStatusClass,
             getStatusText,
-            formatDate
+            formatDate,
+            showHistoryModal,
+            keluhanHistory,
+            historyLoading,
+            selectedKeluhan,
+            showHistory,
+            closeHistoryModal
         }
     }
 }
@@ -312,5 +384,24 @@ export default {
 <style scoped>
 .modal {
     z-index: 1050;
+}
+.timeline {
+    border-left: 2px solid #dee2e6;
+    margin-left: 1rem;
+    padding-left: 1rem;
+}
+.timeline li {
+    position: relative;
+}
+.timeline li:before {
+    content: '';
+    position: absolute;
+    left: -1.1rem;
+    top: 0.5rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    background: #fff;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
 }
 </style>
