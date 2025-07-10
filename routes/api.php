@@ -26,6 +26,14 @@ Route::apiResource('keluhan-pelanggan', KeluhanPelangganController::class);
 // Route untuk search by nama
 Route::get('keluhan-pelanggan/search/nama', [KeluhanPelangganController::class, 'searchByNama']);
 
+// Export keluhan pelanggan
+Route::get('keluhan-pelanggan/export/{format}', [KeluhanPelangganController::class, 'export']);
+
+// Dashboard summary API
+Route::get('dashboard/summary-status', [KeluhanPelangganController::class, 'summaryStatus']);
+Route::get('dashboard/status-per-month', [KeluhanPelangganController::class, 'statusPerMonth']);
+Route::get('dashboard/top-aging', [KeluhanPelangganController::class, 'topAging']);
+
 // API Routes untuk Keluhan Status History
 Route::apiResource('keluhan-status-history', KeluhanStatusHisController::class);
 

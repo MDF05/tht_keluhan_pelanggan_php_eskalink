@@ -14,4 +14,9 @@ export const routes = [
         name: 'keluhan_pelanggan',
         component: () => import(/* webpackChunkName: "keluhan_pelanggan" */ './Pages/KeluhanPelanggan.vue')
     },
+    {
+        path: '/dashboard',
+        name: 'dashboard',
+        component: () => import(/* webpackChunkName: "dashboard" */ './Pages/Dashboard.vue')
+    },
 ];

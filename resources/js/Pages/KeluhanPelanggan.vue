@@ -11,7 +11,7 @@
                     </div>
 
                     <div class="card-body">
-                        <!-- Search Bar -->
+                       
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="input-group">
@@ -27,16 +27,29 @@
                                     </button>
                                 </div>
                             </div>
+                            <div class="col-md-6 text-end">
+                                <div class="btn-group">
+                                    <button class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-download"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#" @click.prevent="exportData('csv')">Export CSV</a></li>
+                                        <li><a class="dropdown-item" href="#" @click.prevent="exportData('xls')">Export XLS</a></li>
+                                        <li><a class="dropdown-item" href="#" @click.prevent="exportData('txt')">Export TXT</a></li>
+                                        <li><a class="dropdown-item" href="#" @click.prevent="exportData('pdf')">Export PDF</a></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Loading State -->
+                        
                         <div v-if="loading" class="text-center">
                             <div class="spinner-border" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
 
-                        <!-- Data Table -->
+                        
                         <div v-else-if="keluhanList.length > 0">
                             <div class="table-responsive">
                                 <table class="table table-striped">
@@ -86,7 +99,7 @@
                             </div>
                         </div>
 
-                        <!-- Empty State -->
+                        
                         <div v-else class="text-center">
                             <p class="text-muted">Tidak ada data keluhan</p>
                         </div>
@@ -95,7 +108,7 @@
             </div>
         </div>
 
-        <!-- Add/Edit Modal -->
+        
         <div v-if="showAddForm" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -108,14 +121,17 @@
                             <div class="mb-3">
                                 <label class="form-label">Nama</label>
                                 <input type="text" class="form-control" v-model="formData.nama" required>
+                                <div v-if="formErrors.nama" class="text-danger small">{{ formErrors.nama }}</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-control" v-model="formData.email" required>
+                                <div v-if="formErrors.email" class="text-danger small">{{ formErrors.email }}</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Nomor HP</label>
                                 <input type="text" class="form-control" v-model="formData.nomor_hp" required>
+                                <div v-if="formErrors.nomor_hp" class="text-danger small">{{ formErrors.nomor_hp }}</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
@@ -124,10 +140,12 @@
                                     <option value="1">Proses</option>
                                     <option value="2">Selesai</option>
                                 </select>
+                                <div v-if="formErrors.status_keluhan" class="text-danger small">{{ formErrors.status_keluhan }}</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Keluhan</label>
                                 <textarea class="form-control" v-model="formData.keluhan" rows="3" required></textarea>
+                                <div v-if="formErrors.keluhan" class="text-danger small">{{ formErrors.keluhan }}</div>
                             </div>
                             <div class="text-end">
                                 <button type="button" @click="closeModal" class="btn btn-secondary me-2">Batal</button>
@@ -139,7 +157,7 @@
             </div>
         </div>
 
-        <!-- Modal Timeline History -->
+        
         <div v-if="showHistoryModal" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -175,6 +193,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal Lihat Keluhan -->
+        <div v-if="showViewModal" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detail Keluhan</h5>
+                        <button @click="closeViewModal" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr><th>Nama</th><td>{{ selectedViewKeluhan?.nama }}</td></tr>
+                                <tr><th>Email</th><td>{{ selectedViewKeluhan?.email }}</td></tr>
+                                <tr><th>Nomor HP</th><td>{{ selectedViewKeluhan?.nomor_hp }}</td></tr>
+                                <tr><th>Status</th><td><span :class="getStatusClass(selectedViewKeluhan?.status_keluhan)">{{ getStatusText(selectedViewKeluhan?.status_keluhan) }}</span></td></tr>
+                                <tr><th>Keluhan</th><td>{{ selectedViewKeluhan?.keluhan }}</td></tr>
+                                <tr><th>Tanggal</th><td>{{ formatDate(selectedViewKeluhan?.created_at) }}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -202,6 +244,9 @@ export default {
         const keluhanHistory = ref([])
         const historyLoading = ref(false)
         const selectedKeluhan = ref(null)
+        const showViewModal = ref(false)
+        const selectedViewKeluhan = ref(null)
+        const formErrors = ref({})
 
         // Fetch data from API
         const fetchKeluhan = async () => {
@@ -236,8 +281,41 @@ export default {
             }
         }
 
+        const validateForm = () => {
+            const errors = {}
+            // Nama: max 50 karakter
+            if (!formData.value.nama) {
+                errors.nama = 'Nama wajib diisi.'
+            } else if (formData.value.nama.length > 50) {
+                errors.nama = 'Text too long, maximum 50 characters.'
+            }
+            // Email: validasi sederhana
+            if (!formData.value.email) {
+                errors.email = 'Email wajib diisi.'
+            } else if (!/^\S+@\S+\.\S+$/.test(formData.value.email)) {
+                errors.email = 'Format email tidak valid.'
+            }
+            // Nomor HP: hanya angka
+            if (!formData.value.nomor_hp) {
+                errors.nomor_hp = 'Nomor HP wajib diisi.'
+            } else if (!/^\d+$/.test(formData.value.nomor_hp)) {
+                errors.nomor_hp = 'Input numeric only.'
+            }
+            // Status: harus dipilih
+            if (formData.value.status_keluhan === '' || formData.value.status_keluhan === null || formData.value.status_keluhan === undefined) {
+                errors.status_keluhan = 'Status wajib dipilih.'
+            }
+            // Keluhan: tidak boleh kosong
+            if (!formData.value.keluhan) {
+                errors.keluhan = 'Keluhan wajib diisi.'
+            }
+            formErrors.value = errors
+            return Object.keys(errors).length === 0
+        }
+
         // Save keluhan (create or update)
         const saveKeluhan = async () => {
+            if (!validateForm()) return
             try {
                 if (editingKeluhan.value) {
                     // Update
@@ -272,7 +350,8 @@ export default {
 
         // View keluhan
         const viewKeluhan = (keluhan) => {
-            alert(`Detail Keluhan:\nNama: ${keluhan.nama}\nEmail: ${keluhan.email}\nKeluhan: ${keluhan.keluhan}`)
+            selectedViewKeluhan.value = keluhan
+            showViewModal.value = true
         }
 
         // Edit keluhan
@@ -293,6 +372,7 @@ export default {
                 status_keluhan: '0',
                 keluhan: ''
             }
+            formErrors.value = {}
         }
 
         // Get status class
@@ -332,9 +412,10 @@ export default {
             historyLoading.value = true
             try {
                 const response = await axios.get(`/api/keluhan-status-history?keluhan_id=${keluhan.id}`)
-                // Filter jika API mengembalikan semua, atau gunakan langsung jika sudah terfilter
+                // Filter data jika API mengembalikan semua history
                 keluhanHistory.value = Array.isArray(response.data)
-                    ? response.data.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))
+                    ? response.data.filter(item => item.keluhan_id === keluhan.id)
+                        .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))
                     : []
             } catch (error) {
                 keluhanHistory.value = []
@@ -346,6 +427,15 @@ export default {
             showHistoryModal.value = false
             keluhanHistory.value = []
             selectedKeluhan.value = null
+        }
+
+        const closeViewModal = () => {
+            showViewModal.value = false
+            selectedViewKeluhan.value = null
+        }
+
+        const exportData = (format) => {
+            window.open(`/api/keluhan-pelanggan/export/${format}`, '_blank')
         }
 
         // Load data on mount
@@ -375,7 +465,13 @@ export default {
             historyLoading,
             selectedKeluhan,
             showHistory,
-            closeHistoryModal
+            closeHistoryModal,
+            showViewModal,
+            selectedViewKeluhan,
+            closeViewModal,
+            formErrors,
+            validateForm,
+            exportData
         }
     }
 }
