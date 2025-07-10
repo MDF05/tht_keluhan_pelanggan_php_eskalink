@@ -67,6 +67,35 @@ class KeluhanStatusHisController extends Controller
     }
 
     /**
+     * Update status by keluhan_id (update status_keluhan terbaru untuk keluhan tertentu)
+     */
+    public function updateStatusByKeluhanId(Request $request, $keluhan_id)
+    {
+        $request->validate([
+            'status_keluhan' => 'required|string',
+        ]);
+        // Ambil status terakhir (history terbaru) untuk keluhan ini
+        $statusHis = KeluhanStatusHis::where('keluhan_id', $keluhan_id)
+            ->orderByDesc('created_at')
+            ->first();
+        if (!$statusHis) {
+            return response()->json(['message' => 'Status history not found'], 404);
+        }
+        $statusHis->status_keluhan = $request->status_keluhan;
+        $statusHis->save();
+        return response()->json($statusHis);
+    }
+
+    /**
+     * Delete all status by keluhan_id (hapus semua history status untuk keluhan tertentu)
+     */
+    public function deleteStatusByKeluhanId($keluhan_id)
+    {
+        $deleted = KeluhanStatusHis::where('keluhan_id', $keluhan_id)->delete();
+        return response()->json(['deleted' => $deleted]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)

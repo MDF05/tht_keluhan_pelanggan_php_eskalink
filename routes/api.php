@@ -39,3 +39,7 @@ Route::apiResource('keluhan-status-history', KeluhanStatusHisController::class);
 
 // Route untuk search by status
 Route::get('keluhan-status-history/search/status', [KeluhanStatusHisController::class, 'searchByStatus']);
+// Update status by keluhan_id
+Route::put('keluhan-status-history/update-by-keluhan/{keluhan_id}', [KeluhanStatusHisController::class, 'updateStatusByKeluhanId']);
+// Delete all status by keluhan_id
+Route::delete('keluhan-status-history/delete-by-keluhan/{keluhan_id}', [KeluhanStatusHisController::class, 'deleteStatusByKeluhanId']);
