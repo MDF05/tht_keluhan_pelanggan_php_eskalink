@@ -4,17 +4,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- !CSRF Token -->
+    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- !Fonts -->
+    <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-    <!-- !Scripts -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap Icons (Alternative) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div id="app">
@@ -28,14 +37,22 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- !Left Side Of Navbar -->
+                    <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-                        
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{ name: 'home' }">Home</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{ name: 'keluhan_pelanggan' }">Keluhan Pelanggan</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{ name: 'dashboard' }">Dashboard</router-link>
+                        </li>
                     </ul>
 
-                    <!-- !Right Side Of Navbar -->
+                    <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
-                        <!-- !Authentication Links -->
+                        <!-- Authentication Links -->
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -73,7 +90,7 @@
         </nav>
 
         <main class="py-4">
-            @yield('content')
+            <router-view></router-view>
         </main>
     </div>
 </body>

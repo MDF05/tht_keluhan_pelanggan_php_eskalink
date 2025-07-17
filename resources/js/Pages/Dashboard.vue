@@ -89,7 +89,7 @@ onMounted(async () => {
   // Bar Chart
   const barRes = await axios.get('/api/dashboard/status-per-month')
   const barData = barRes.data
-  // Ambil semua bulan unik
+  
   const months = [...new Set(barData.map(d => d.bulan))]
   const statusList = ['0', '1', '2']
   const barDatasets = statusList.map((status, i) => ({

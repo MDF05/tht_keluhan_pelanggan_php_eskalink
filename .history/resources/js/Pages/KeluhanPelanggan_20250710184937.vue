@@ -194,7 +194,7 @@
             </div>
         </div>
 
-        <!-- !! Modal Lihat Keluhan -->
+        <!-- !Modal Lihat Keluhan -->
         <div v-if="showViewModal" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
             <div class="modal-dialog">
                 <div class="modal-content">
