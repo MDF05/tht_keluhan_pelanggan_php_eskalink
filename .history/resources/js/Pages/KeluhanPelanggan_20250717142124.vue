@@ -174,7 +174,7 @@
                         <div v-else>
                             <div v-if="keluhanHistory.length > 0">
                                 <ul class="timeline list-unstyled">
-                                    <li v-for="(item) in keluhanHistory" :key="item.id" class="mb-3">
+                                    <li v-for="(item, idx) in keluhanHistory" :key="item.id" class="mb-3">
                                         <div>
                                             <span :class="getStatusClass(item.status_keluhan)">
                                                 {{ getStatusText(item.status_keluhan) }}
