@@ -248,7 +248,7 @@ export default {
         const selectedViewKeluhan = ref(null)
         const formErrors = ref({})
 
-        // Fetch data from API
+        // ! Fetch data from API
         const fetchKeluhan = async () => {
             loading.value = true
             try {
@@ -262,7 +262,7 @@ export default {
             }
         }
 
-        // Search keluhan
+        // ! Search keluhan
         const searchKeluhan = async () => {
             if (!searchQuery.value.trim()) {
                 await fetchKeluhan()
@@ -283,29 +283,29 @@ export default {
 
         const validateForm = () => {
             const errors = {}
-            // Nama: max 50 karakter
+            // ! Nama: max 50 karakter
             if (!formData.value.nama) {
                 errors.nama = 'Nama wajib diisi.'
             } else if (formData.value.nama.length > 50) {
                 errors.nama = 'Text too long, maximum 50 characters.'
             }
-            // Email: validasi sederhana
+            // ! Email: validasi sederhana
             if (!formData.value.email) {
                 errors.email = 'Email wajib diisi.'
             } else if (!/^\S+@\S+\.\S+$/.test(formData.value.email)) {
                 errors.email = 'Format email tidak valid.'
             }
-            // Nomor HP: hanya angka
+            // ! Nomor HP: hanya angka
             if (!formData.value.nomor_hp) {
                 errors.nomor_hp = 'Nomor HP wajib diisi.'
             } else if (!/^\d+$/.test(formData.value.nomor_hp)) {
                 errors.nomor_hp = 'Input numeric only.'
             }
-            // Status: harus dipilih
+            // ! Status: harus dipilih
             if (formData.value.status_keluhan === '' || formData.value.status_keluhan === null || formData.value.status_keluhan === undefined) {
                 errors.status_keluhan = 'Status wajib dipilih.'
             }
-            // Keluhan: tidak boleh kosong
+            // ! Keluhan: tidak boleh kosong
             if (!formData.value.keluhan) {
                 errors.keluhan = 'Keluhan wajib diisi.'
             }
@@ -313,15 +313,15 @@ export default {
             return Object.keys(errors).length === 0
         }
 
-        // Save keluhan (create or update)
+        // ! Save keluhan (create or update)
         const saveKeluhan = async () => {
             if (!validateForm()) return
             try {
                 if (editingKeluhan.value) {
-                    // Update
+                    // ! Update
                     await axios.put(`/api/keluhan-pelanggan/${editingKeluhan.value.id}`, formData.value)
                 } else {
-                    // Create
+                    // ! Create
                     await axios.post('/api/keluhan-pelanggan', formData.value)
                 }
                 
@@ -334,7 +334,7 @@ export default {
             }
         }
 
-        // Delete keluhan
+        // ! Delete keluhan
         const deleteKeluhan = async (id) => {
             if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return
 
@@ -348,20 +348,20 @@ export default {
             }
         }
 
-        // View keluhan
+        // ! View keluhan
         const viewKeluhan = (keluhan) => {
             selectedViewKeluhan.value = keluhan
             showViewModal.value = true
         }
 
-        // Edit keluhan
+        // ! Edit keluhan
         const editKeluhan = (keluhan) => {
             editingKeluhan.value = keluhan
             formData.value = { ...keluhan }
             showAddForm.value = true
         }
 
-        // Close modal
+        // ! Close modal
         const closeModal = () => {
             showAddForm.value = false
             editingKeluhan.value = null
@@ -375,7 +375,7 @@ export default {
             formErrors.value = {}
         }
 
-        // Get status class
+        // ! Get status class
         const getStatusClass = (status) => {
             const classes = {
                 '0': 'badge bg-warning',
@@ -385,7 +385,7 @@ export default {
             return classes[status] || 'badge bg-secondary'
         }
 
-        // Get status text
+        // ! Get status text
         const getStatusText = (status) => {
             const texts = {
                 '0': 'Pending',
@@ -395,7 +395,7 @@ export default {
             return texts[status] || 'Unknown'
         }
 
-        // Format date
+        // ! Format date
         const formatDate = (dateString) => {
             return new Date(dateString).toLocaleDateString('id-ID', {
                 year: 'numeric',
@@ -412,7 +412,7 @@ export default {
             historyLoading.value = true
             try {
                 const response = await axios.get(`/api/keluhan-status-history?keluhan_id=${keluhan.id}`)
-                // Filter data jika API mengembalikan semua history
+                // ! Filter data jika API mengembalikan semua history
                 keluhanHistory.value = Array.isArray(response.data)
                     ? response.data.filter(item => item.keluhan_id === keluhan.id)
                         .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))
@@ -438,7 +438,7 @@ export default {
             window.open(`/api/keluhan-pelanggan/export/${format}`, '_blank')
         }
 
-        // Load data on mount
+        // ! Load data on mount
         onMounted(() => {
             fetchKeluhan()
         })
